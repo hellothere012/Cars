@@ -1,0 +1,8 @@
+{
+  "name": "getvehicle-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to get a vehicle by ID.",
+  "main": "handler.js",
+  "dependencies": {},
+  "devDependencies": {}
+}

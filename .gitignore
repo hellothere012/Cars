@@ -1,0 +1,86 @@
+# General ignores
+node_modules/
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+
+# Frontend specific build output
+frontend/build/
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+frontend/coverage/ # Frontend test coverage
+
+# Backend specific (if any local builds or bundles)
+backend/dist/
+backend/coverage/ # Backend test coverage
+
+# CDK output
+cdk.out/
+
+# Environment files - IMPORTANT: Never commit actual .env files!
+.env
+.env.*
+!.env.example # Keep .env.example files
+
+# Test reports and coverage
+coverage/
+lcov.info
+*.lcov
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Mac specific
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+__MACOSX/
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Log files
+*.log
+logs
+*.logs
+*.log.*
+
+# Miscellaneous
+.temp/
+.tmp/
+*.tmp
+*.swp # Vim swap files
+*.swo # Vim swap files
+
+# AWS SAM specific (if used locally)
+.aws-sam/
+
+# Amplify specific
+amplify/.config/local-*
+amplify/#current-cloud-backend/
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation/
+build/
+dist/
+node_modules/
+aws-exports.js
+awsconfiguration.json
+amplifyconfiguration.json
+outputs/
+\#*#
+.#*
+xcuserdata/

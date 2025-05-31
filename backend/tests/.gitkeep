@@ -1,0 +1,3 @@
+// backend/tests/.gitkeep
+// Purpose: Ensures the backend/tests directory is tracked by Git.
+// TODO: Add actual backend integration or unit tests in this directory.

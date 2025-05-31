@@ -1,0 +1,8 @@
+{
+  "name": "searchvehicles-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to search/list vehicles.",
+  "main": "handler.js",
+  "dependencies": {},
+  "devDependencies": {}
+}

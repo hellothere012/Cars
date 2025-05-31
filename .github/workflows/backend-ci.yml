@@ -1,0 +1,149 @@
+# Purpose: GitHub Actions workflow for backend CI (linting and testing).
+# TODO: Define jobs for linting and running unit/integration tests for the backend Lambdas and CDK code on push/pull_request to develop and main.
+
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'infra/cdk/**' # Assuming CDK code is part of backend CI
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'infra/cdk/**'
+
+jobs:
+  lint-backend:
+    name: Lint Backend Lambda Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend # Adjust if monorepo structure is different
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Specify Node.js version for Lambdas
+          cache: 'npm' # Or yarn
+          cache-dependency-path: backend/package-lock.json # Path to backend's lock file (if exists at root of backend)
+
+      - name: Install Backend Dependencies
+        # Assuming each lambda might have its own package.json or a shared one at backend/
+        # This example assumes you might need to iterate or have a root package.json for backend
+        run: |
+          if [ -f package.json ]; then npm ci; fi
+          # If lambdas have individual package.json files and you need to install for all:
+          # for dir in lambdas/*/; do
+          #   if [ -f "${dir}package.json" ]; then
+          #     echo "Installing dependencies for ${dir}"
+          #     (cd "${dir}" && npm ci)
+          #   fi
+          # done
+        working-directory: backend # Ensure this is correct
+
+      - name: Run Linter for Backend
+        run: npm run lint # TODO: Add a lint script to backend's package.json (or run for each lambda)
+        working-directory: backend
+
+  test-backend:
+    name: Test Backend Lambda Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json # Adjust as needed
+
+      - name: Install Backend Dependencies
+        run: |
+          if [ -f package.json ]; then npm ci; fi
+          # Potentially iterate for individual lambdas if needed
+        working-directory: backend
+
+      - name: Run Backend Tests
+        run: npm test # TODO: Add a test script to backend's package.json (or run for each lambda)
+        working-directory: backend
+        # env: # Add any environment variables needed for tests
+          # MOCK_DYNAMODB_TABLE: 'test-vehicles-table'
+
+  lint-cdk:
+    name: Lint CDK Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/cdk
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Specify Node.js version for CDK
+          cache: 'npm' # Or yarn
+          cache-dependency-path: infra/cdk/package-lock.json
+
+      - name: Install CDK Dependencies
+        run: npm ci
+
+      - name: Run Linter for CDK
+        run: npm run lint # TODO: Add a lint script to infra/cdk/package.json
+
+  test-cdk: # Optional: if you have unit tests for CDK stacks (e.g., ensuring properties)
+    name: Test CDK Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/cdk
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: infra/cdk/package-lock.json
+
+      - name: Install CDK Dependencies
+        run: npm ci
+
+      - name: Run CDK Tests
+        run: npm test # TODO: Add a test script to infra/cdk/package.json
+
+  # synthesize-cdk: # Optional: Ensure CDK code can synthesize
+  #   name: Synthesize CDK Templates
+  #   runs-on: ubuntu-latest
+  #   needs: [lint-cdk] # Run after CDK linting
+  #   defaults:
+  #     run:
+  #       working-directory: infra/cdk
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
+  #         cache: 'npm'
+  #         cache-dependency-path: infra/cdk/package-lock.json
+
+  #     - name: Install CDK Dependencies
+  #       run: npm ci
+
+  #     - name: CDK Synth
+  #       run: npx cdk synth --context env=dev-ci # Use a specific context for CI synth
+  #       # env:
+  #         # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV_CI }} # For synth if it needs AWS context
+  #         # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV_CI }}
+  #         # AWS_DEFAULT_REGION: 'us-east-1' # Or your target region
+
+permissions:
+  contents: read
+  pull-requests: read

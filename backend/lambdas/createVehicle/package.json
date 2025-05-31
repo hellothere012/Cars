@@ -1,0 +1,11 @@
+{
+  "name": "createvehicle-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to create a new vehicle.",
+  "main": "handler.js",
+  "dependencies": {
+    "uuid": "^9.0.0",
+    "joi": "^17.9.2"
+  },
+  "devDependencies": {}
+}

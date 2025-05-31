@@ -1,0 +1,24 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci # Use npm ci for faster, more reliable builds in CI
+    build:
+      commands:
+        - npm run lint # Run linter
+        - npm run test # Run tests (ensure test script is configured in package.json)
+        - npm run build # Build the React/Next.js application
+  artifacts:
+    baseDirectory: build # For Create React App; use '.next' for Next.js if applicable
+    files:
+      - '**/*' # Include all files in the build directory
+  cache:
+    paths:
+      - node_modules/**/* # Cache node_modules to speed up subsequent builds
+# Environment variable configuration (if needed directly in amplify.yml, though typically managed in Amplify console)
+# environmentVariables:
+#   REACT_APP_API_URL: '' # These would be set in the Amplify console per branch
+#   REACT_APP_REGION: ''
+#   REACT_APP_COGNITO_USER_POOL_ID: ''
+#   REACT_APP_COGNITO_APP_CLIENT_ID: ''

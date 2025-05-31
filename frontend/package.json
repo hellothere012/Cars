@@ -1,0 +1,8 @@
+// frontend/package.json
+// Purpose: Manages frontend dependencies and scripts.
+// TODO: Populate with actual dependencies and scripts.
+{
+  "name": "car-inventory-frontend",
+  "version": "0.1.0",
+  "private": true
+}
