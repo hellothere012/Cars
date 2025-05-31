@@ -1,11 +1,67 @@
 /* frontend/src/styles/global.css */
-/* Purpose: Global styles for the application. */
-/* TODO: Define global CSS rules or import a framework like Tailwind CSS. */
+/* Purpose: Global CSS styles or entry point for CSS preprocessors like SASS/LESS. */
+/* TODO: Define global styles, CSS variables, or import foundational stylesheets (e.g., normalize.css). */
+/* TODO: If using Tailwind CSS, this file might be minimal, or this could be tailwind.config.js. */
 
 body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
+  line-height: 1.5;
+  background-color: #f4f4f4; /* Example basic background color */
+  color: #333; /* Example basic text color */
 }
 
-/* Add more global styles as needed */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+a {
+  color: #007bff; /* Example link color */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  padding: 0.5em 1em;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+/* Add more global styles or TODOs as needed */
+
+/* Example for basic form styling - can be expanded or moved to component styles */
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"] {
+  width: calc(100% - 22px); /* Full width minus padding and border */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+form button[type="submit"]:hover {
+  background-color: #0056b3;
+}

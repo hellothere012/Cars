@@ -1,106 +1,92 @@
-// Purpose: Defines CloudWatch alarms, dashboards, and X-Ray sampling rules.
-// TODO: Create CloudWatch alarms for critical metrics (Lambda errors, API Gateway 5XX, DynamoDB capacity).
-// TODO: Configure X-Ray sampling rules.
-
+// infra/cdk/stacks/MonitoringStack.ts
 import * as cdk from 'aws-cdk-lib';
-import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { Construct } from 'constructs';
+// import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 // import * as cw_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 // import * as sns from 'aws-cdk-lib/aws-sns';
-// import * as xray from 'aws-cdk-lib/aws-xray'; // For X-Ray sampling rules
+// import * as lambda from 'aws-cdk-lib/aws-lambda'; // For specific Lambda monitoring
+// import * as apigw from 'aws-cdk-lib/aws-apigateway'; // For API Gateway monitoring
+// import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'; // For DynamoDB Table monitoring
 
-interface MonitoringStackProps extends cdk.StackProps {
-  // apiName?: string; // To monitor a specific API Gateway
-  // lambdaFunctionNames?: string[]; // To monitor specific Lambda functions
-  // dynamoDbTableNames?: string[]; // To monitor specific DynamoDB tables
-  // criticalAlarmSnsTopic?: sns.ITopic; // SNS topic for critical alarms
+export interface MonitoringStackProps extends cdk.StackProps {
+  readonly envName: string;
+  readonly projectPrefix: string;
+  // readonly apiGateway?: apigw.IRestApi; // Pass from ComputeStack
+  // readonly coreLambdas?: lambda.IFunction[]; // Pass array of key lambdas from ComputeStack
+  // readonly vehiclesTable?: dynamodb.ITable; // Pass from DatabaseStack
+  // readonly ocrQueue?: sqs.IQueue; // Pass from OcrPipelineStack (e.g. TextractResultQueue)
 }
 
 export class MonitoringStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: MonitoringStackProps) {
+  constructor(scope: Construct, id: string, props: MonitoringStackProps) {
     super(scope, id, props);
+    const { envName, projectPrefix } = props; // apiGateway, coreLambdas, vehiclesTable, ocrQueue
 
-    const envName = this.node.tryGetContext('env') || 'dev';
+    console.log(`MonitoringStack (${envName}): TODO: Implement CloudWatch Alarms, Dashboards, and X-Ray configuration.`);
 
-    // --- CloudWatch Dashboard (Example) ---
-    const dashboard = new cloudwatch.Dashboard(this, `AppDashboard-${envName}`, {
-      dashboardName: `CarInventoryDashboard-${envName}`,
-    });
+    // TODO: Create an SNS Topic for critical alarms.
+    // const criticalAlarmTopic = new sns.Topic(this, `${projectPrefix}${envName}CriticalAlarmTopic`, {
+    //   displayName: `${projectPrefix}-${envName} Critical Alarms`,
+    //   topicName: `${projectPrefix}-${envName}-CriticalAlarmTopic`
+    // });
+    // new cdk.CfnOutput(this, `${projectPrefix}${envName}CriticalAlarmTopicArn`, { value: criticalAlarmTopic.topicArn });
 
-    // TODO: Add widgets to the dashboard for key metrics.
-    // Example: API Gateway 4XX/5XX errors, Lambda invocation counts/errors/duration, DynamoDB read/write capacity.
-    // dashboard.addWidgets(
-    //   new cloudwatch.GraphWidget({
-    //     title: 'API Gateway Errors',
-    //     left: [
-    //       // new cloudwatch.Metric({ /* ... define metric for 4XX errors ... */ }),
-    //       // new cloudwatch.Metric({ /* ... define metric for 5XX errors ... */ }),
-    //     ],
-    //   })
-    // );
-
-    // --- CloudWatch Alarms (Example) ---
-    // TODO: Define specific alarms for your application's critical components.
-
-    // Example: Alarm for high Lambda error rate on a specific function
-    // if (props?.lambdaFunctionNames && props.lambdaFunctionNames.length > 0) {
-    //   const myFunction = lambda.Function.fromFunctionName(this, 'MyMonitoredFunction', props.lambdaFunctionNames[0]);
-    //   const lambdaErrorAlarm = new cloudwatch.Alarm(this, `LambdaErrorAlarm-${props.lambdaFunctionNames[0]}-${envName}`, {
-    //     alarmName: `LambdaErrorRateHigh-${props.lambdaFunctionNames[0]}-${envName}`,
-    //     metric: myFunction.metricErrors({ period: cdk.Duration.minutes(5) }),
-    //     threshold: 5, // Example: 5 errors in 5 minutes
-    //     evaluationPeriods: 1,
-    //     comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-    //     alarmDescription: `High error rate for Lambda ${props.lambdaFunctionNames[0]} in ${envName}`,
-    //   });
-    //   // if (props.criticalAlarmSnsTopic) {
-    //   //   lambdaErrorAlarm.addAlarmAction(new cw_actions.SnsAction(props.criticalAlarmSnsTopic));
-    //   // }
+    // TODO: Configure CloudWatch Alarms for API Gateway (5XX errors, high latency).
+    // if (apiGateway) {
+    //   new cloudwatch.Alarm(this, `${projectPrefix}${envName}ApiGateway5xxAlarm`, {
+    //     metric: apiGateway.metricServerError({ period: cdk.Duration.minutes(1) }),
+    //     threshold: 5, evaluationPeriods: 2, comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+    //     alarmDescription: `High 5XX error rate on API Gateway ${apiGateway.restApiName}`,
+    //   }).addAlarmAction(new cw_actions.SnsAction(criticalAlarmTopic));
     // }
 
-    // Example: Alarm for API Gateway 5XX errors
-    // if (props?.apiName) {
-    //   const api5xxAlarm = new cloudwatch.Alarm(this, `ApiGateway5xxAlarm-${envName}`, {
-    //     alarmName: `ApiGateway5xxHigh-${props.apiName}-${envName}`,
-    //     metric: new cloudwatch.Metric({
-    //       namespace: 'AWS/ApiGateway',
-    //       metricName: '5XXError',
-    //       dimensionsMap: { ApiName: props.apiName },
-    //       statistic: 'Sum',
-    //       period: cdk.Duration.minutes(1),
-    //     }),
-    //     threshold: 10, // Example: 10 5XX errors in 1 minute
-    //     evaluationPeriods: 2, // Over 2 consecutive periods
-    //     alarmDescription: `High 5XX error count for API ${props.apiName} in ${envName}`,
-    //   });
-    //   // if (props.criticalAlarmSnsTopic) {
-    //   //   api5xxAlarm.addAlarmAction(new cw_actions.SnsAction(props.criticalAlarmSnsTopic));
-    //   // }
-    // }
-
-
-    // --- AWS X-Ray Sampling Rules (Example) ---
-    // TODO: Define X-Ray sampling rules if you need more control than the default.
-    // The default rule samples the first request each second, and 5% of additional requests.
-    // new xray.CfnSamplingRule(this, `MySamplingRule-${envName}`, {
-    //   ruleName: `CarInventorySamplingRule-${envName}`,
-    //   samplingRule: {
-    //     resourceArn: '*', // Apply to all resources
-    //     priority: 10,    // Lower number = higher priority
-    //     fixedRate: 0.01, // 1% of requests
-    //     reservoirSize: 1, // At least 1 request per second will be traced
-    //     serviceName: '*', // Or specific service name
-    //     serviceType: '*', // Or specific service type (e.g., AWS::Lambda::Function)
-    //     host: '*',
-    //     httpMethod: '*',
-    //     urlPath: '*',
-    //     version: 1,
-    //   },
+    // TODO: Configure CloudWatch Alarms for critical Lambda functions (errors, throttles, high duration).
+    // coreLambdas?.forEach(fn => {
+    //   new cloudwatch.Alarm(this, `${projectPrefix}${envName}${fn.node.id}ErrorAlarm`, {
+    //     metric: fn.metricErrors({ period: cdk.Duration.minutes(5) }),
+    //     threshold: 5, evaluationPeriods: 1,
+    //     alarmDescription: `High error rate for Lambda ${fn.functionName}`,
+    //   }).addAlarmAction(new cw_actions.SnsAction(criticalAlarmTopic));
     // });
 
-    new cdk.CfnOutput(this, `DashboardNameOutput-${envName}`, {
-      value: dashboard.dashboardName,
-    });
+    // TODO: Configure CloudWatch Alarms for DynamoDB table (throttled requests, capacity issues if provisioned).
+    // if (vehiclesTable) {
+    //   // Example for throttled read requests (more relevant for provisioned capacity)
+    //   new cloudwatch.Alarm(this, `${projectPrefix}${envName}TableReadThrottleAlarm`, {
+    //      metric: vehiclesTable.metric('ReadThrottleEvents', { statistic: 'Sum', period: cdk.Duration.minutes(5) }),
+    //      threshold: 10, evaluationPeriods: 1,
+    //      alarmDescription: `DynamoDB Read Throttles on table ${vehiclesTable.tableName}`,
+    //   }).addAlarmAction(new cw_actions.SnsAction(criticalAlarmTopic));
+    // }
 
-    console.log('TODO: Finalize MonitoringStack (define specific alarms, dashboard widgets, X-Ray rules, SNS topic for alarms).');
+    // TODO: Configure CloudWatch Alarms for SQS Queues (e.g. AgeOfOldestMessage, ApproximateNumberOfMessagesVisible for DLQs).
+    // if (ocrQueue) { /* ... create alarms for ocrQueue ... */ }
+
+
+    // TODO: Create CloudWatch Dashboards to visualize key metrics.
+    // const dashboard = new cloudwatch.Dashboard(this, `${projectPrefix}${envName}AppDashboard`, {
+    //   dashboardName: `${projectPrefix}-${envName}-ApplicationDashboard`,
+    // });
+    // dashboard.addWidgets(...); // Add widgets for API Gateway, Lambdas, DynamoDB etc.
+
+    // TODO: Ensure AWS X-Ray tracing is enabled on API Gateway stages and Lambdas (often default or set in those constructs).
+    // X-Ray sampling rules can be defined here if more control is needed over default sampling.
+    // Example:
+    // new xray.CfnSamplingRule(this, `${projectPrefix}${envName}XRaySamplingRule`, {
+    //   ruleName: `${projectPrefix}-${envName}-DefaultSampling`,
+    //   samplingRule: {
+    //     resourceArn: '*', serviceType: '*', httpMethod: '*', urlPath: '*',
+    //     fixedRate: 0.05, // 5%
+    //     reservoirSize: 1, // At least 1 request per second
+    //     priority: 1000,
+    //     version: 1,
+    //   }
+    // });
+
+
+    // Tagging
+    cdk.Tags.of(this).add('Project', projectPrefix);
+    cdk.Tags.of(this).add('Environment', envName);
+    cdk.Tags.of(this).add('Owner', 'HarrisAbbaali');
   }
 }

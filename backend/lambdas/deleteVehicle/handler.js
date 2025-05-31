@@ -1,25 +1,26 @@
 // backend/lambdas/deleteVehicle/handler.js
-// Purpose: Lambda handler for deleting a vehicle.
-// TODO: Implement logic to delete a vehicle record from DynamoDB.
+// const dbClient = require('../../shared/dbClient');
+// const { successResponse, errorResponse } = require('../../shared/response');
 
 exports.handler = async (event) => {
-  console.log('Received event:', JSON.stringify(event, null, 2));
-  const vehicleId = event.pathParameters && event.pathParameters.id;
+  console.log('Received event for deleteVehicle:', JSON.stringify(event, null, 2));
+  const { vehicleId } = event.pathParameters || {};
+
+  // TODO: Secure this endpoint.
 
   if (!vehicleId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Vehicle ID is required.' }),
-    };
+    // return errorResponse('Vehicle ID is required in path.', 400);
+    return { statusCode: 400, body: JSON.stringify({ error: 'Vehicle ID is required in path.' }) };
   }
 
-  // TODO: Use validation.js if any pre-deletion checks are needed (e.g., associated data).
-  // TODO: Use dbClient.js for database interaction.
-  // TODO: Return a standardized response using response.js.
-  // TODO: Handle cases where the vehicle does not exist.
+  // TODO: Validate vehicleId format (e.g., UUID).
 
-  return {
-    statusCode: 200, // Or 204 No Content
-    body: JSON.stringify({ message: `TODO: Implement deleteVehicle handler for ID ${vehicleId}` }),
-  };
+  // TODO: Implement delete logic. This could be a hard delete or a soft delete (setting status to 'DELETED' or 'INACTIVE').
+  //       Example (soft delete): await dbClient.updateVehicleStatus(vehicleId, 'DELETED');
+  //       Example (hard delete): await dbClient.deleteVehicleById(vehicleId); // dbClient would need this method.
+  //       Ensure vehicle exists before attempting to delete. If not found, return 404.
+
+  console.log(`TODO: Implement delete logic for vehicleId: ${vehicleId}`);
+  // return successResponse({ message: 'Vehicle deletion not yet implemented.', vehicleId }, 200);
+  return { statusCode: 501, body: JSON.stringify({ message: 'Delete vehicle not yet implemented.', vehicleId }) };
 };

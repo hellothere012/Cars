@@ -1,24 +1,10 @@
 // backend/lambdas/deleteVehicle/validation.js
-// Purpose: Provides validation logic for the deleteVehicle Lambda (if needed).
-// TODO: Implement validation if there are any pre-conditions for deletion (e.g., check for active listings).
+// const Joi = require('joi');
 
-const validateDeleteVehicleInput = (vehicleId, options = {}) => {
-  const errors = [];
-  if (!vehicleId) {
-    errors.push('Vehicle ID is required for deletion.');
-  }
+// TODO: Define Joi schema if any specific validation for delete operation is needed beyond path param.
+// Usually, only the vehicleId path parameter needs validation (e.g., UUID format),
+// which can be done in the handler.
 
-  // Example: Check if there are active listings associated with the vehicle.
-  // if (options.hasActiveListings) {
-  //   errors.push('Cannot delete vehicle with active listings. Please remove listings first.');
-  // }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-  };
-};
-
-module.exports = {
-  validateDeleteVehicleInput,
-};
+// module.exports = {}; // Or a schema for vehicleId if passed in body (not typical for DELETE)
+console.log('TODO: Define Joi validation schema for deleteVehicle if needed.');
+module.exports = {}; // Placeholder

@@ -1,59 +1,22 @@
 // backend/lambdas/booksheetOCR/parser.js
-// Purpose: Parses raw OCR data (e.g., from Textract) into structured vehicle information.
-// TODO: Implement parsing logic based on the expected format of book sheets and Textract output.
 
 /**
- * Parses the raw blocks from Textract (or other OCR service) to extract vehicle details.
- * This is highly dependent on the structure of the book sheets.
- * @param {Object} ocrData The raw data object from the OCR service (e.g., Textract response).
- * @returns {Object} An object containing extracted vehicle information (VIN, make, model, year, mileage, features, etc.).
+ * TODO: Parses the raw JSON output from Textract's GetDocumentAnalysis.
+ * This function will extract key-value pairs, form data, and table data
+ * into a more structured format relevant for vehicle information.
+ * @param {object} textractOutput - The full JSON response from Textract GetDocumentAnalysis.
+ * @returns {object} Structured vehicle data (e.g., { make, model, year, vin, mileage, price, options: [] }).
  */
-const parseBooksheet = (ocrData) => {
-  console.log('Parsing OCR data...');
-  if (!ocrData || !ocrData.Blocks) {
-    console.warn('No OCR data or blocks found to parse.');
-    return {};
-  }
+// function parseTextractOutput(textractOutput) {
+//   const structuredData = {};
+//   // TODO: Implement logic to iterate through Textract blocks (PAGE, LINE, WORD, KEY_VALUE_SET, TABLE).
+//   // Example: Find specific keys like "VIN:", "Make:", "Model:", "Year:", "Mileage:", "Price:".
+//   // Handle variations in OCR output and confidence scores.
+//   // Map extracted text to a predefined schema for vehicle attributes.
+//   console.log('Parsing Textract output (not implemented)...', textractOutput);
+//   return structuredData;
+// }
 
-  const extractedData = {
-    vin: null,
-    make: null,
-    model: null,
-    year: null,
-    mileage: null,
-    // Add other fields as expected from the book sheet
-    options: [],
-    rawOcrText: [], // Could be useful for debugging or manual review
-  };
-
-  // TODO: Implement logic to iterate through ocrData.Blocks (or other OCR output structure)
-  // This will involve identifying key-value pairs, table entries, or specific text patterns.
-  // Example pseudo-logic:
-  // - Find text "VIN:" and then get the subsequent text block.
-  // - Find a table related to vehicle options and extract items.
-  // - Use regular expressions to find mileage, year, etc.
-
-  // For now, a placeholder:
-  // ocrData.Blocks.forEach(block => {
-  //   if (block.BlockType === 'LINE' && block.Text) {
-  //     extractedData.rawOcrText.push(block.Text);
-  //     if (block.Text.includes('VIN:')) {
-  //       extractedData.vin = block.Text.replace('VIN:', '').trim();
-  //     }
-  //     // ... more parsing rules
-  //   }
-  // });
-
-  console.warn('TODO: Implement detailed parsing logic for book sheets.');
-  if (extractedData.rawOcrText.length === 0 && ocrData.Blocks.length > 0) {
-    // If no text was extracted by simple line logic, just dump some block info for now
-    extractedData.debugInfo = `Found ${ocrData.Blocks.length} blocks, but no text extracted by current simple parser.`;
-  }
-
-
-  return extractedData;
-};
-
-module.exports = {
-  parseBooksheet,
-};
+// module.exports = { parseTextractOutput };
+console.log('TODO: Implement Textract output parsing logic.');
+module.exports = {}; // Placeholder

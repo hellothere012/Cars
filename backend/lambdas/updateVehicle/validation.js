@@ -1,25 +1,18 @@
 // backend/lambdas/updateVehicle/validation.js
-// Purpose: Provides validation logic for the updateVehicle Lambda.
-// TODO: Implement validation for vehicle update data (e.g., ensure no critical fields like VIN are changed, validate data types).
+// const Joi = require('joi');
 
-const validateUpdateVehicleInput = (data) => {
-  const errors = [];
-  if (data.vin) {
-    // Potentially disallow VIN changes or add specific logic if allowed
-    // errors.push('VIN cannot be changed during an update. For corrections, consider a different process.');
-  }
-  if (data.hasOwnProperty('year') && (typeof data.year !== 'number' || data.year < 1900 || data.year > new Date().getFullYear() + 1)) {
-    errors.push('Invalid year.');
-  }
-  // Add more validation rules for other updatable fields.
-  // Ensure that only allowed fields are present in the `data` object.
+// TODO: Define Joi schema for updatable vehicle fields.
+// This schema should be less strict than createVehicle, as not all fields are required for an update.
+// Example:
+// const schema = Joi.object({
+//   make: Joi.string().trim().min(1).max(50),
+//   model: Joi.string().trim().min(1).max(50),
+//   year: Joi.number().integer().min(1900).max(new Date().getFullYear() + 1),
+//   mileage: Joi.number().integer().min(0).max(1000000),
+//   price: Joi.number().precision(2).min(0).max(10000000),
+//   status: Joi.string().valid('ACTIVE', 'SOLD', 'PENDING') // Example statuses
+// }).min(1); // Require at least one field to be updated
 
-  return {
-    isValid: errors.length === 0,
-    errors,
-  };
-};
-
-module.exports = {
-  validateUpdateVehicleInput,
-};
+// module.exports = schema;
+console.log('TODO: Define Joi validation schema for updateVehicle.');
+module.exports = {}; // Placeholder

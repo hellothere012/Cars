@@ -1,0 +1,1 @@
+{ "name": "calculatekbb-lambda-stub", "version": "1.0.0", "main": "handler.js", "dependencies": {"node-fetch": "^2.6.7"} }

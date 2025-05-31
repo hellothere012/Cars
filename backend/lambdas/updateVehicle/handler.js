@@ -1,26 +1,41 @@
 // backend/lambdas/updateVehicle/handler.js
-// Purpose: Lambda handler for updating an existing vehicle.
-// TODO: Implement logic to update a vehicle record in DynamoDB.
+// const dbClient = require('../../shared/dbClient');
+// const vehicleUpdateSchema = require('./validation');
+// const { successResponse, errorResponse } = require('../../shared/response');
 
 exports.handler = async (event) => {
-  console.log('Received event:', JSON.stringify(event, null, 2));
-  const vehicleId = event.pathParameters && event.pathParameters.id;
-  const updates = JSON.parse(event.body); // Assuming body is JSON
+  console.log('Received event for updateVehicle:', JSON.stringify(event, null, 2));
+  const { vehicleId } = event.pathParameters || {};
+  let requestBody;
+
+  // TODO: Secure this endpoint, ensure only authorized users can update.
 
   if (!vehicleId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Vehicle ID is required.' }),
-    };
+    // return errorResponse('Vehicle ID is required in path.', 400);
+    return { statusCode: 400, body: JSON.stringify({ error: 'Vehicle ID is required in path.' }) };
   }
 
-  // TODO: Use validation.js to validate the updates payload.
-  // TODO: Use dbClient.js for database interaction.
-  // TODO: Return a standardized response using response.js.
-  // TODO: Handle cases where the vehicle does not exist.
+  try {
+    requestBody = JSON.parse(event.body || '{}');
+  } catch (e) {
+    // return errorResponse('Invalid JSON in request body.', 400);
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON in request body.' }) };
+  }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: `TODO: Implement updateVehicle handler for ID ${vehicleId}`, updates }),
-  };
+  // TODO: Validate requestBody against vehicleUpdateSchema.
+  //       The schema should define which fields are updatable and their constraints.
+  //       Example: const { error, value } = vehicleUpdateSchema.validate(requestBody);
+  //       if (error) return errorResponse(error.details.map(d => d.message).join(', '), 400);
+
+  // TODO: Fetch existing vehicle data from dbClient.getVehicleById(vehicleId) to ensure it exists.
+  //       If not found, return errorResponse('Vehicle not found.', 404);
+
+  // TODO: Construct the update payload. Only include fields that are present in the request
+  //       and are allowed to be updated. Add 'updatedAt: new Date().toISOString()'.
+  //       Consider using DynamoDB's UpdateItem with UpdateExpression for partial updates.
+  //       Example: await dbClient.updateVehicle(vehicleId, value); // dbClient would need an updateVehicle method.
+
+  console.log(`TODO: Implement update logic for vehicleId: ${vehicleId} with body:`, requestBody);
+  // return successResponse({ message: 'Vehicle update not yet implemented.', vehicleId }, 200);
+  return { statusCode: 501, body: JSON.stringify({ message: 'Update vehicle not yet implemented.', vehicleId }) };
 };

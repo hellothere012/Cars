@@ -1,56 +1,47 @@
 // backend/shared/errors.js
-// Purpose: Defines custom error classes for the application.
-// TODO: Implement custom error types as needed.
+// Purpose: Custom error classes for specific error handling scenarios.
 
-class AppError extends Error {
-  constructor(message, statusCode, details = null) {
-    super(message);
-    this.name = this.constructor.name;
-    this.statusCode = statusCode;
-    this.details = details; // Can be an object or array of error details
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+// TODO: Define custom error classes if needed for more granular error handling.
+// Example:
+// class ValidationError extends Error {
+//   constructor(message, details) {
+//     super(message);
+//     this.name = 'ValidationError';
+//     this.details = details; // e.g., Joi validation error details
+//     this.statusCode = 400;
+//   }
+// }
 
-class ValidationError extends AppError {
-  constructor(message = 'Input validation failed', details = null) {
-    super(message, 400, details); // 400 Bad Request
-  }
-}
+// class NotFoundError extends Error {
+//   constructor(message = 'Resource not found') {
+//     super(message);
+//     this.name = 'NotFoundError';
+//     this.statusCode = 404;
+//   }
+// }
 
-class NotFoundError extends AppError {
-  constructor(message = 'Resource not found', details = null) {
-    super(message, 404, details); // 404 Not Found
-  }
-}
+// class UnauthorizedError extends Error {
+//   constructor(message = 'Unauthorized') {
+//     super(message);
+//     this.name = 'UnauthorizedError';
+//     this.statusCode = 401;
+//   }
+// }
 
-class UnauthorizedError extends AppError {
-  constructor(message = 'Unauthorized', details = null) {
-    super(message, 401, details); // 401 Unauthorized
-  }
-}
+// class ForbiddenError extends Error {
+//   constructor(message = 'Forbidden') {
+//     super(message);
+//     this.name = 'ForbiddenError';
+//     this.statusCode = 403;
+//   }
+// }
 
-class ForbiddenError extends AppError {
-  constructor(message = 'Forbidden', details = null) {
-    super(message, 403, details); // 403 Forbidden
-  }
-}
 
-class DatabaseError extends AppError {
-  constructor(message = 'A database error occurred', details = null, originalError = null) {
-    super(message, 500, details); // 500 Internal Server Error
-    this.originalError = originalError; // Store the original database error if available
-  }
-}
-
-// Add more custom error classes as your application requires
-// For example: KBBServiceError, OCRProcessingError, etc.
-
-module.exports = {
-  AppError,
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  ForbiddenError,
-  DatabaseError,
-};
+// module.exports = {
+//   ValidationError,
+//   NotFoundError,
+//   UnauthorizedError,
+//   ForbiddenError
+// };
+console.log('TODO: Implement custom error classes.');
+module.exports = {}; // Placeholder

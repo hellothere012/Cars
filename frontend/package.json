@@ -1,8 +1,38 @@
-// frontend/package.json
-// Purpose: Manages frontend dependencies and scripts.
-// TODO: Populate with actual dependencies and scripts.
 {
   "name": "car-inventory-frontend",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "aws-amplify": "^5.0.0",
+    "@aws-amplify/ui-react": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "echo \"TODO: Add script to start dev server (e.g., react-scripts start or next dev)\" && exit 0",
+    "build": "echo \"TODO: Add build script (e.g., react-scripts build or next build)\" && exit 0",
+    "start": "echo \"TODO: Add script to start production server (e.g., next start or serve -s build)\" && exit 0",
+    "lint": "echo \"TODO: Add linting script (e.g., eslint .)\" && exit 0",
+    "test": "echo \"TODO: Add test script (e.g., react-scripts test or jest)\" && exit 0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+  }
 }

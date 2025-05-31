@@ -1,161 +1,279 @@
-# Car Inventory Application
+# Car Inventory Application (car-inventory-app)
 
-## Introduction & Purpose
-TODO: Describe the application, its goals, and target users.
-This application aims to provide a comprehensive system for managing a car dealership's vehicle inventory. Key features include adding new vehicles, searching and filtering existing stock, managing vehicle details, and integrating with OCR for quick data entry from book sheets. The target users are dealership staff, including sales personnel and inventory managers.
+## 1. Introduction & Purpose
 
-## Project Structure Overview
-- **/frontend**: Contains the React/Next.js frontend application.
-  - **/src**: Source code for the frontend.
-  - **/amplify.yml**: Build specification for AWS Amplify CI/CD.
-- **/backend**: Contains AWS Lambda functions (Node.js) for the application's API.
-  - **/lambdas**: Individual Lambda functions, each typically with a handler, validation, and tests.
-  - **/shared**: Shared code for backend services (e.g., DB client, response utilities).
-- **/infra**: Contains Infrastructure as Code (IaC) using AWS CDK (TypeScript).
-  - **/cdk/bin**: CDK application entry point.
-  - **/cdk/stacks**: Definitions of various AWS resource stacks (Auth, DB, API, etc.).
-- **/tests**: Contains End-to-End tests.
-  - **/e2e**: E2E test specifications.
-- **/.github/workflows**: GitHub Actions CI workflows for frontend and backend.
+TODO:
+- Briefly describe what the Car Inventory Application does.
+- What are its main goals and objectives?
+- Who is the target audience or users for this application?
+- What key problems does it solve or what value does it provide?
 
-## Local Development Setup
+## 2. Project Structure Overview
+
+TODO:
+- Briefly explain the top-level directory structure:
+  - `frontend/`: Contains the React/Next.js frontend application.
+  - `backend/`: Houses the AWS Lambda functions (Node.js) for business logic.
+  - `infra/`: Includes Infrastructure as Code (IaC) using AWS CDK (TypeScript) for defining AWS resources.
+  - `.github/workflows/`: CI/CD pipeline configurations for GitHub Actions.
+  - `tests/`: Placeholder for End-to-End tests.
+- Mention key technologies used (React, Node.js, AWS Lambda, API Gateway, DynamoDB, Cognito, CDK, Amplify, CodePipeline).
+
+## 3. Local Development Setup
 
 ### Prerequisites
-- Node.js (version specified in `.nvmrc` or >= 18.x)
-- npm or yarn
-- AWS CLI configured with appropriate credentials and region
-- AWS CDK CLI (`npm install -g aws-cdk`)
-- Docker (optional, for local Lambda testing or other containerized services)
+- Node.js (e.g., v18.x or later) & npm: [Link to Node.js installation]
+- AWS CLI configured: [Link to AWS CLI installation and configuration guide]
+  - Ensure you have an AWS profile configured with necessary permissions.
+- AWS CDK Toolkit: `npm install -g aws-cdk` (or ensure it's a dev dependency in `infra/cdk/package.json`)
+- Git: [Link to Git installation]
+- (Optional) Docker Desktop (if running local DynamoDB or other services in containers).
 
 ### Initial Setup
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/YOUR_GITHUB_OWNER/car-inventory-app.git
     cd car-inventory-app
     ```
-2.  **Install dependencies for all parts:**
+2.  **Install Frontend Dependencies:**
     ```bash
-    # For frontend
-    cd frontend && npm install && cd ..
-    # For backend (assuming a root package.json or run per lambda)
-    # cd backend && npm install && cd .. # Or iterate through each lambda in backend/lambdas/
-    # For CDK
-    cd infra/cdk && npm install && cd .. && cd ..
+    cd frontend
+    npm ci
+    # TODO: Add command if using Yarn (yarn install --frozen-lockfile)
+    cd ..
     ```
-3.  **Setup Environment Variables:**
-    *   Copy `frontend/.env.example` to `frontend/.env` and populate values.
-    *   For backend Lambdas, environment variables are typically set via CDK during deployment or locally via `sam local start-api --env-vars env.json`.
-4.  **Bootstrap CDK (if first time using CDK in this AWS account/region):**
+3.  **Install Backend Lambda Dependencies:**
+    - Each Lambda function with dependencies has its own `package.json`.
+    - Example for `createVehicle` Lambda:
     ```bash
-    npx cdk bootstrap aws://ACCOUNT-NUMBER/REGION # Replace with your AWS account and region
+    cd backend/lambdas/createVehicle
+    npm ci
+    cd ../../..
     ```
+    - TODO: List other Lambdas that require `npm ci` (e.g., `getVehicle`, `searchVehicles` if they have specific deps, `calculateKBB`, `booksheetOCR` stubs).
+4.  **Install CDK Project Dependencies:**
+    ```bash
+    cd infra/cdk
+    npm ci
+    cd ../..
+    ```
+5.  **Configure Environment Variables (Frontend):**
+    - Copy `frontend/.env.example` to `frontend/.env.local`.
+    - Fill in the required values in `frontend/.env.local`. These will typically come from your deployed AWS backend resources (Cognito IDs, API URL). See section "5. Environment Variables" for details.
 
-### Running Frontend Development Server
+### Running Frontend Locally
 ```bash
 cd frontend
-npm run dev # Or yarn dev
+# TODO: Verify and update the dev script name if different from "npm run dev"
+npm run dev
 ```
-Access at `http://localhost:3000` (or as specified by your frontend framework).
+- Access the frontend at `http://localhost:3000` (or the port specified by your dev server).
+- TODO: Add note about configuring `REACT_APP_API_URL` in `frontend/.env.local` to point to your deployed staging API Gateway or a local mock.
 
-### Deploying CDK Stacks
-Deploy stacks individually or using a script. Use the `--context env=<environment_name>` flag (e.g., `dev`, `staging`, `prod`).
-```bash
-cd infra/cdk
+### Deploying Backend (AWS CDK) Locally/to Staging
+1.  **Bootstrap CDK (if first time in an AWS account/region):**
+    ```bash
+    cd infra/cdk
+    # Replace YOUR_AWS_ACCOUNT_ID and YOUR_AWS_REGION with your actual details
+    cdk bootstrap aws://YOUR_AWS_ACCOUNT_ID/YOUR_AWS_REGION \
+      -c env=staging \
+      -c projectPrefix=CarInv \
+      # Add other necessary context variables as defined in cdk.json or app.ts (e.g., github placeholders)
+    ```
+    TODO: Clarify which context variables are essential for a local/staging bootstrap and deploy. The GitHub placeholders are likely not needed for a local deploy of core stacks unless CiCdPipelineStack is included.
+2.  **Synthesize CloudFormation Templates (Optional Check):**
+    ```bash
+    cd infra/cdk
+    cdk synth -c env=staging # Add other context vars if needed
+    ```
+3.  **Deploy Core Stacks to Staging:**
+    - It's recommended to deploy stacks individually or in logical groups first.
+    ```bash
+    cd infra/cdk
+    # Deploy Auth stack
+    cdk deploy CarInv-staging-AuthStack -c env=staging
+    # Deploy Database stack
+    cdk deploy CarInv-staging-DatabaseStack -c env=staging
+    # Deploy Compute stack (API and Lambdas for core features)
+    cdk deploy CarInv-staging-ComputeStack -c env=staging
+    ```
+    - TODO: Confirm stack names are correct based on `app.ts` instantiation (e.g., `CarInv-staging-AuthStack`).
+    - TODO: Note that `CiCdPipelineStack` is usually not deployed manually for local dev.
+    - After deployment, update `frontend/.env.local` with the outputs (Cognito IDs, API Gateway URL).
 
-# Example: Deploying essential stacks for a 'dev' environment
-npx cdk deploy AuthStack-dev DatabaseStack-dev StorageStack-dev ComputeStack-dev --context env=dev
+## 4. Environment Variables
 
-# To deploy all stacks (ensure correct order or handle dependencies in CDK):
-# npx cdk deploy "*Stack-dev" --context env=dev
-```
-**Note:** The `env` context variable in `cdk.json` or passed via CLI (`--context env=your_env_name`) is used to name resources and manage configurations per environment.
+### Frontend (`frontend/.env.example`)
+- `REACT_APP_API_URL`: URL of the deployed API Gateway (e.g., `https://api-id.execute-api.region.amazonaws.com/staging`).
+- `REACT_APP_REGION`: AWS region where backend is deployed (e.g., `us-east-1`).
+- `REACT_APP_COGNITO_USER_POOL_ID`: Cognito User Pool ID.
+- `REACT_APP_COGNITO_APP_CLIENT_ID`: Cognito User Pool App Client ID.
+- `REACT_APP_COGNITO_IDENTITY_POOL_ID` (Optional): If using Cognito Identity Pool for unauthenticated access.
+- TODO: List any other custom frontend environment variables.
 
-## Environment Variables
-Refer to `frontend/.env.example` for frontend variables.
-Backend Lambda environment variables are defined within their respective CDK stack definitions (e.g., `VEHICLES_TABLE_NAME` in `ComputeStack.ts`).
-Key variables to expect:
-- `AWS_REGION`, `AWS_PROFILE` (for local AWS CLI/CDK usage)
-- `REACT_APP_API_URL` (frontend: API Gateway endpoint)
-- `REACT_APP_COGNITO_USER_POOL_ID`, `REACT_APP_COGNITO_APP_CLIENT_ID`, `REACT_APP_COGNITO_REGION` (frontend: for Amplify Auth)
-- `VEHICLES_TABLE_NAME` (backend: DynamoDB table name for vehicle data)
-- `USER_POOL_ID` (backend: if Lambdas need to interact with Cognito)
-- `KBB_API_KEY` (backend: for `calculateKBB` lambda)
+### Backend (Lambda Environment Variables - set via CDK in `ComputeStack.ts`, etc.)
+- `VEHICLES_TABLE_NAME`: Name of the DynamoDB table for vehicles.
+- `REGION`: AWS region of the Lambda and other services.
+- `COGNITO_USER_POOL_ID`: Cognito User Pool ID (can be used for token validation or other Cognito interactions within Lambdas if necessary, though API Gateway handles auth).
+- `KBB_API_KEY_SECRET_ARN` (For `calculateKBB` Lambda): ARN of the Secrets Manager secret holding the KBB API key.
+- `TEXTRACT_SNS_TOPIC_ARN` (For `booksheetOCR/textractService`): ARN of the SNS topic Textract publishes to.
+- `TEXTRACT_ROLE_ARN` (For `booksheetOCR/textractService`): ARN of the IAM role Textract assumes for SNS access.
+- TODO: List any other Lambda-specific environment variables.
 
-## Branch Workflow
-- **develop**: Main development branch. All feature branches are merged here. Corresponds to a `dev` or `staging` environment.
-- **main**: Production branch. Merges from `develop` (after stabilization) trigger production deployments.
-- **Feature branches**: `feature/your-feature-name`, branched from `develop`.
+### CDK Context Variables (`infra/cdk/cdk.json` or passed via CLI `-c key=value`)
+- `env`: (Required) Deployment environment (e.g., `staging`, `production`, `dev`).
+- `projectPrefix`: Project prefix for resource naming (default: `CarInv`).
+- `githubOwner`: GitHub repository owner (for `CiCdPipelineStack`).
+- `githubRepo`: GitHub repository name (for `CiCdPipelineStack`).
+- `githubConnectionArn`: AWS CodeStar Connection ARN for GitHub (for `CiCdPipelineStack`).
+- TODO: List any other CDK context variables.
 
-### Frontend CI/CD
-- Managed by AWS Amplify Console (or GitHub Actions deploying to Amplify).
-- Pushes/merges to `develop` branch deploy to the `dev` (or `staging`) frontend environment.
-- Pushes/merges to `main` branch deploy to the `production` frontend environment.
+## 5. Branch Workflow & Deployment
 
-### Backend CI/CD
-- Managed by AWS CodePipeline, defined in `infra/cdk/stacks/CiCdPipelineStack.ts`.
-- Pushes/merges to `develop` trigger the pipeline to build and deploy backend resources to the `dev` (or `staging`) environment.
-- Pushes/merges to `main` trigger the pipeline to build and deploy backend resources to the `production` environment (often with a manual approval step).
-- GitHub Actions in `.github/workflows/` run linters and tests on push/PR for backend and CDK code before pipeline deployment.
+- **`develop` branch:**
+  - Represents the staging environment.
+  - Pushes to `develop` trigger:
+    - **Frontend (AWS Amplify):** Automatic build, test, and deploy to the staging frontend URL (e.g., `https://develop.YOUR_AMPLIFY_APP_ID.amplifyapp.com`).
+    - **Backend (AWS CodePipeline):** Automatic build, test, CDK synth, and deploy of backend stacks (Auth, Database, Compute, etc.) to the staging environment in AWS.
+- **`main` branch:**
+  - Represents the production environment.
+  - Pushes to `main` trigger:
+    - **Frontend (AWS Amplify):** Automatic build, test, and deploy to the production frontend URL (e.g., `https://YOUR_DOMAIN.com`).
+    - **Backend (AWS CodePipeline):** Automatic build, test, CDK synth, and deploy of backend stacks to the production environment in AWS.
+    - TODO: Mention if manual approval steps are planned for production deployment in CodePipeline.
+- **Feature branches (`feature/...`):**
+  - Create feature branches from `develop`.
+  - Make changes, commit, and push.
+  - Create Pull Requests (PRs) to merge back into `develop`.
+  - PRs to `develop` or `main` should trigger CI checks (linting, tests) via GitHub Actions (`frontend-ci.yml`, `backend-ci.yml`).
 
-## How to Add New Lambda or CDK Resource
+## 6. How to Add New Lambda or CDK Resource
 
-### Adding a New Lambda:
-1.  Create a new directory in `backend/lambdas/yourNewLambdaName/`.
-2.  Add `handler.js` (or `.ts`), `validation.js` (optional), `package.json` (if it has unique dependencies).
-3.  Write unit tests (e.g., `test_yourNewLambdaName.js`).
-4.  In `infra/cdk/stacks/ComputeStack.ts` (or a more relevant stack):
-    *   Define the new Lambda function using the `lambda.Function` construct.
-    *   Grant necessary IAM permissions (e.g., to DynamoDB tables, S3 buckets).
-    *   Integrate it with API Gateway by adding a new route and method.
-5.  Update shared code (e.g. `backend/shared/dbClient.js`) if the new lambda requires new database interactions.
+### Adding a New Lambda Function
+1.  **Create Lambda Directory:**
+    - In `backend/lambdas/`, create a new directory for your Lambda (e.g., `myNewFunction`).
+2.  **Implement Handler:**
+    - Create `handler.js` (or `.ts`) with your Lambda logic.
+    - Add `validation.js` if needed for input validation (e.g., using Joi).
+    - Create `package.json` if your Lambda has specific dependencies and run `npm ci` or `npm install`.
+3.  **Update CDK (e.g., `ComputeStack.ts`):**
+    - Define a new `lambda.Function` resource, pointing to your Lambda's code.
+    - Set environment variables, memory, timeout, and IAM permissions.
+    - Grant necessary permissions (e.g., `myTable.grantReadData(myNewFunction)`).
+4.  **Integrate with API Gateway (if applicable):**
+    - In `ComputeStack.ts`, add a new API Gateway resource/method and link it to your Lambda.
+    - Secure it with the Cognito authorizer if needed.
+5.  **Update Backend CI/CD:**
+    - If your new Lambda has dependencies, ensure `npm ci` is run for its directory in `.github/workflows/backend-ci.yml` (CodeBuild buildspec within `CiCdPipelineStack.ts` already attempts this for all lambda folders with package.json).
+    - Add tests for the new Lambda.
 
-### Adding a New CDK Resource (e.g., SQS Queue, S3 Bucket):
-1.  Identify the appropriate stack in `infra/cdk/stacks/` (e.g., `StorageStack.ts` for S3, `OcrPipelineStack.ts` for SQS in the OCR flow).
-2.  Define the new resource using the relevant CDK construct (e.g., `new sqs.Queue(...)`).
-3.  Configure its properties, permissions, and any integrations with other resources.
-4.  If the resource is used by Lambdas, pass its ARN or name as an environment variable or prop to the relevant Lambda definition in `ComputeStack.ts` or other stacks.
+### Adding a New CDK Resource (e.g., SQS Queue, S3 Bucket)
+1.  **Choose or Create a Stack:**
+    - Add the resource to an existing relevant stack in `infra/cdk/stacks/` (e.g., `StorageStack.ts` for S3, `OcrPipelineStack.ts` for SQS in the OCR flow).
+    - Or, create a new stack file if it represents a new logical component.
+2.  **Define the Resource:**
+    - Use CDK constructs to define the resource (e.g., `new sqs.Queue(...)`, `new s3.Bucket(...)`).
+    - Configure properties, permissions, and outputs as needed.
+3.  **Update `app.ts`:**
+    - If you created a new stack, import and instantiate it in `infra/cdk/bin/app.ts`.
+    - Pass any necessary props or outputs from other stacks.
+4.  **Update CI/CD Pipeline (`CiCdPipelineStack.ts`):**
+    - If you created a new stack that needs to be deployed, add a new `CloudFormationCreateUpdateStackAction` to the deploy stage in `CiCdPipelineStack.ts`.
+    - Ensure its template is included in the CodeBuild artifacts.
 
-## Testing Strategy
+## 7. Testing Strategy
 
-### Backend (Lambdas & CDK)
-- **Unit Tests**: Jest is recommended. Each Lambda function should have unit tests covering its core logic, validation, and interactions with mocks of AWS services.
-  - Run: `cd backend && npm test` (or per-lambda: `cd backend/lambdas/someLambda && npm test`)
-- **CDK Tests**: Jest can be used to write tests for CDK stacks, asserting properties of created resources.
-  - Run: `cd infra/cdk && npm test`
-- **Integration Tests**: (Future) Test interactions between Lambdas and actual AWS services (e.g., API Gateway -> Lambda -> DynamoDB). Can be part of CodePipeline.
+### Unit Tests
+- **Frontend (Jest & React Testing Library):**
+  - TODO: Describe how to run frontend unit tests (e.g., `npm test` in `frontend/` directory).
+  - TODO: Mention what should be tested (components, services, utility functions).
+  - TODO: Specify location for test files (e.g., `frontend/src/**/*.test.tsx`).
+- **Backend Lambdas (Jest):**
+  - TODO: Describe how to run Lambda unit tests (e.g., `npm test` in individual Lambda directories or a root backend test script).
+  - Test handlers, validation logic (`validation.js`), and any helper modules.
+  - Mock AWS SDK calls (e.g., `dbClient.js` interactions) and external dependencies.
+  - Example test files: `backend/lambdas/createVehicle/test_createVehicle.js`.
+- **CDK Infrastructure (Jest):**
+  - TODO: Describe how to run CDK unit tests (e.g., `npm test` in `infra/cdk/` directory).
+  - Use CDK's assertions library (`aws-cdk-lib/assertions`) to test synthesized CloudFormation templates for resource properties, counts, etc.
 
-### Frontend
-- **Unit/Integration Tests**: Jest and React Testing Library (or Enzyme).
-  - Run: `cd frontend && npm test`
-- **E2E Tests**: Placeholder in `tests/e2e/` for frameworks like Cypress or Playwright.
-  - TODO: Implement E2E tests for key user flows (login, add vehicle, view list/detail).
+### Integration Tests
+- TODO: Describe strategy for integration tests (e.g., testing API Gateway endpoints with live Lambdas and DynamoDB in a staging environment).
+- This might involve using tools like Postman, Newman, or custom scripts.
 
-## Troubleshooting Tips
-- **IAM Permission Errors**: Check Lambda execution roles and user deployment permissions. Use IAM Policy Simulator.
-- **CDK Deployment Failures**: Review CloudFormation event logs in the AWS Console for detailed error messages.
-- **Missing Environment Variables**: Ensure `.env` files are correctly populated for local frontend and Lambda environment variables are set in CDK.
-- **Amplify Build Failures**: Check Amplify Console build logs. Ensure `amplify.yml` is correct and dependencies are compatible.
-- **CORS Issues**: Configure `defaultCorsPreflightOptions` in `ComputeStack.ts` for API Gateway.
-- **API Gateway 5XX Errors**: Check Lambda logs in CloudWatch for the specific function backing the endpoint.
+### End-to-End (E2E) Tests
+- Framework: Placeholder (e.g., Cypress, Playwright) - see `tests/e2e/README.md`.
+- TODO: Describe how to run E2E tests once implemented.
+- E2E tests will cover full user flows through the UI against a deployed environment.
 
-## Naming Conventions
-- **General AWS Resources**: `CarInv-<env>-<ResourceName>` (e.g., `CarInv-dev-VehiclesTable`, `CarInv-prod-AuthStack`).
-- `<env>` can be `dev`, `staging`, `prod`, or other environment identifiers.
-- Lambda Functions: `MyFunctionLambda-<env>`
-- S3 Buckets: `carinv-<env>-<purpose>` (e.g., `carinv-dev-assets`, `carinv-prod-booksheets`) - must be globally unique.
-- Consistent casing (e.g., PascalCase for stack names, camelCase for variables).
+## 8. Troubleshooting Tips
 
-## Security Checklist
-- **HTTPS**: Enforced by API Gateway and Amplify Hosting.
-- **Least Privilege IAM**: Ensure Lambdas and other services have only the permissions they need.
-- **Cognito Security**: Strong password policies, MFA enabled, review advanced security features.
-- **Input Validation**: All Lambda handlers must validate input payloads (see `validation.js` pattern).
-- **Secrets Management**: Use AWS Secrets Manager or Parameter Store for database credentials, API keys (e.g., KBB_API_KEY). Do not hardcode secrets.
-- **S3 Bucket Security**: Block public access unless explicitly required. Enable server-side encryption and versioning.
-- **Dependency Scanning**: Regularly scan dependencies for vulnerabilities (e.g., `npm audit`, Snyk, GitHub Dependabot).
-- **Regular Audits**: Periodically review security configurations and IAM roles.
-- **XSS/CSRF**: For frontend, rely on framework protections and best practices. Sanitize user inputs.
+- **Frontend Build/Run Issues:**
+  - Check Node.js/npm versions.
+  - Ensure all dependencies are installed (`npm ci` in `frontend/`).
+  - Verify `.env.local` configuration, especially `REACT_APP_API_URL` and Cognito IDs.
+  - Check browser console for errors.
+- **Backend Deployment (CDK) Issues:**
+  - Ensure AWS CLI is configured correctly with appropriate permissions.
+  - Check CDK bootstrap status for the account/region.
+  - Verify context variables (`-c env=...`) are passed correctly to `cdk deploy`.
+  - Examine CloudFormation console for detailed error messages on stack failures.
+  - `cdk diff` can show pending changes before deployment.
+- **API Gateway / Lambda Errors:**
+  - Check CloudWatch Logs for your Lambda functions. Enable detailed logging in handlers.
+  - Test API Gateway endpoints with tools like Postman or `curl`, ensuring correct headers (Authorization for protected routes).
+  - Verify IAM permissions for Lambdas (e.g., DynamoDB access, Secrets Manager access).
+- **CI/CD Pipeline Failures:**
+  - **Amplify (Frontend):** Check build logs in the Amplify console.
+  - **CodePipeline (Backend):** Examine logs for CodeBuild stage and CloudFormation deployment events.
+  - **GitHub Actions:** Review workflow run logs for linting/testing errors.
+- TODO: Add more specific common errors and their solutions as the project develops.
 
-TODO: Expand all sections with more specific details as the project evolves.Successfully created `README.md`.
+## 9. Naming Conventions
 
-This completes all the planned file and directory creation tasks for the entire project structure.
+- **AWS Resources (CDK):**
+  - General Pattern: `${projectPrefix}-${envName}-${ResourceName}` (e.g., `CarInv-staging-VehiclesTable`).
+  - Lambdas: `CarInv-${envName}-createVehicle`
+  - API Gateway: `CarInv-${envName}-Api`
+  - DynamoDB Table: `CarInv-${envName}-VehiclesTable`
+  - Cognito User Pool: `CarInv-${envName}-UserPool`
+  - Cognito App Client: `CarInv-${envName}-AppClient`
+  - S3 Buckets: `carinv-${envName}-<purpose>-<random_suffix_if_needed_for_global_uniqueness>` (e.g., `carinv-staging-booksheets-uniqueid`)
+- **Tags on AWS Resources:**
+  - `Project`: `CarInv` (Set globally in `app.ts` or per stack)
+  - `Environment`: `${envName}` (e.g., `staging`, `production`)
+  - `Owner`: `HarrisAbbaali`
+- TODO: Add any other specific naming conventions (e.g., for variables, functions, components).
+
+## 10. Security Checklist
+
+- **HTTPS:** Ensure API Gateway and Amplify frontend use HTTPS. (Default for these services).
+- **Least Privilege IAM:**
+  - Lambda execution roles should only have permissions necessary for their tasks (e.g., specific DynamoDB actions on a specific table).
+  - CDK deployment roles/users should also follow least privilege.
+- **Cognito Security:**
+  - Strong password policy enforced (as configured in `AuthStack.ts`).
+  - MFA enabled for users (TODO: Consider making this configurable or mandatory).
+  - Email verification required (as configured).
+- **Input Validation:**
+  - Validate all inputs from users/clients on both frontend and backend (Lambda handlers using Joi schemas).
+  - Protect against common web vulnerabilities (XSS, SQLi - though less relevant for NoSQL/Lambda).
+- **Secrets Management:**
+  - Store sensitive data like external API keys (e.g., KBB API key) in AWS Secrets Manager, not in code.
+  - Access secrets securely via IAM permissions for Lambdas. (Placeholder in `calculateKBB` Lambda).
+- **Dependency Management:**
+  - Regularly update dependencies to patch vulnerabilities (`npm audit`).
+  - Use `npm ci` for consistent installs in CI/CD.
+- **Data Security (DynamoDB/S3):**
+  - Enable server-side encryption for S3 buckets and DynamoDB tables (default or configurable in CDK).
+  - Implement Point-in-Time Recovery (PITR) for DynamoDB (as configured in `DatabaseStack.ts`).
+  - Configure S3 bucket policies and block public access settings appropriately.
+- **API Gateway Authorization:**
+  - All protected API routes use Cognito authorizer (as configured in `ComputeStack.ts`).
+- **Logging & Monitoring:**
+  - Implement sufficient logging in Lambdas for audit and debugging.
+  - Set up CloudWatch Alarms for critical errors/issues (as planned in `MonitoringStack.ts`).
+- TODO: Add more specific security considerations as features are built out (e.g., rate limiting on API Gateway, WAF).
+
+---
+TODO: Add sections for "Future Enhancements", "Known Issues", "Contributing Guidelines" if applicable later.

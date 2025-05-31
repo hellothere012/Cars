@@ -1,6 +1,4 @@
-# Purpose: GitHub Actions workflow for frontend CI (linting and testing).
-# TODO: Define jobs for linting and running unit/integration tests for the frontend on push/pull_request to develop and main.
-
+# .github/workflows/frontend-ci.yml
 name: Frontend CI
 
 on:
@@ -8,80 +6,53 @@ on:
     branches: [ main, develop ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
 
 jobs:
-  lint:
-    name: Lint Frontend
+  lint-test-build:
+    name: Lint, Test, and Build Frontend
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ./frontend
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4 # Updated to v4
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Updated to v4
         with:
-          node-version: '18' # Specify your project's Node.js version
+          node-version: '18' # Or your project's Node.js version
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Dependencies
-        run: npm ci # or yarn install
+      - name: Install dependencies
+        run: npm ci
+        # TODO: If using a different package manager (e.g., yarn), change command:
+        # run: yarn install --frozen-lockfile
 
-      - name: Run Linter
-        run: npm run lint # TODO: Ensure you have a lint script in frontend/package.json
+      - name: Run linters
+        run: npm run lint
+        # TODO: Ensure 'lint' script is defined and configured in frontend/package.json
 
-  test:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18' # Specify your project's Node.js version
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+      - name: Run tests
+        run: npm run test -- --watchAll=false # Example for Jest to run in non-watch mode
+        # TODO: Ensure 'test' script is defined in frontend/package.json
+        # TODO: Configure any necessary test environment variables (e.g., mock API URL for unit/integration tests)
 
-      - name: Install Dependencies
-        run: npm ci # or yarn install
+      # Optional: Build application to catch build errors early
+      # This step is implicitly covered by Amplify deployment, but can be useful here.
+      # - name: Build application
+      #   run: npm run build
+      #   # TODO: Ensure 'build' script is defined in frontend/package.json
 
-      - name: Run Tests
-        run: npm test # TODO: Ensure you have a test script in frontend/package.json
-
-  # build: # Optional: Add a build step if you want to ensure the frontend builds correctly
-  #   name: Build Frontend
-  #   runs-on: ubuntu-latest
-  #   needs: [lint, test] # Run after lint and test
-  #   defaults:
-  #     run:
-  #       working-directory: frontend
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: '18'
-  #         cache: 'npm'
-  #         cache-dependency-path: frontend/package-lock.json
-
-  #     - name: Install Dependencies
-  #       run: npm ci
-
-  #     - name: Build
-  #       run: npm run build # TODO: Ensure you have a build script
-  #       # env:
-  #       #   CI: true # Common practice for Create React App builds
-          # Add any necessary build-time environment variables here
-          # REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL_DEV }} # Example for dev
-          # Ensure these secrets are configured in GitHub repository settings
-permissions:
-  contents: read # Allow actions/checkout to read the repository
-  pull-requests: read # Optional: if you need to interact with PRs (e.g. commenting)
+    # TODO:
+    # - Add vulnerability scanning (e.g., npm audit, Snyk).
+    # - Add code coverage reporting (e.g., upload to Codecov).
+    # - Consider matrix testing for different Node.js versions or browsers if applicable.
